@@ -2,7 +2,54 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div id="loginBlock">
+    Введите логин:<br />
+    <input id="userName" type="text" />
+    <input id="loginBtn" type="button" value="Войти" />
 </div>
+
+<br />
+
+<div id="header"></div>
+<br />
+
+<div id="inputForm">
+    <input type="text" id="message" />
+    <input type="button" id="sendBtn" value="Отправить" />
+</div>
+
+<div id="chatroom"></div>
+
+<script src="js/microsoft/signalr/dist/browser/signalr.min.js"></script>
+<script>
+    const hubConnection = new signalR.HubConnectionBuilder()
+        .withUrl("/chat")
+        .build();
+
+    hubConnection.on("ReceiveMessage", function (userName, message) {
+
+        let userNameElem = document.createElement("b");
+        userNameElem.appendChild(document.createTextNode(userName + ': '));
+
+
+        let elem = document.createElement("p");
+        elem.appendChild(userNameElem);
+        elem.appendChild(document.createTextNode(message));
+
+        var firstElem = document.getElementById("chatroom").firstChild;
+        document.getElementById("chatroom").insertBefore(elem, firstElem);
+
+    });
+
+    document.getElementById("loginBtn").addEventListener("click", function (e) {
+        userName = document.getElementById("userName").value;
+        document.getElementById("header").innerHTML = '<h3>Welcome ' + userName + '</h3>';
+    });
+    // отправка сообщения на сервер
+    document.getElementById("sendBtn").addEventListener("click", function (e) {
+        let message = document.getElementById("message").value;
+        hubConnection.invoke("Send", userName, message);
+    });
+
+    hubConnection.start();
+</script>
