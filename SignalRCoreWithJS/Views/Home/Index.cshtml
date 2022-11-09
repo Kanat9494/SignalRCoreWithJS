@@ -15,7 +15,15 @@
 
 <div id="inputForm">
     <input type="text" id="message" />
+    <input type="text" id="latitude" />
+    <input type="text" id="longitude" />
     <input type="button" id="sendBtn" value="Отправить" />
+</div>
+
+<div>
+    <ul id="messageList">
+
+    </ul>
 </div>
 
 <div id="chatroom"></div>
@@ -26,15 +34,32 @@
         .withUrl("/chat")
         .build();
 
-    hubConnection.on("ReceiveMessage", function (userName, message) {
+    hubConnection.on("ReceiveMessage", function (userName, message, lat, lng) {
 
-        let userNameElem = document.createElement("b");
-        userNameElem.appendChild(document.createTextNode(userName + ': '));
+        //let userNameElem = document.createElement("b");
+        //userNameElem.appendChild(document.createTextNode(userName + ': '));
+        //let elem = document.createElement("p");
+        //elem.appendChild(userNameElem);
+        //elem.appendChild(document.createTextNode(message));
 
+        const li = document.createElement("li");
+        li.textContent = `id: ${userName}\n bus number: ${message}\n latitude: ${lat}\n longitude: ${lng}`;
+        document.getElementById("messageList").appendChild(li);
 
-        let elem = document.createElement("p");
-        elem.appendChild(userNameElem);
-        elem.appendChild(document.createTextNode(message));
+        
+
+        //let lat1 = document.createElement("b");
+        //lat1.appendChild(document.createTextNode('latitude' + ': '));
+        //let elem2 = document.createElement("p");
+        //elem2.appendChild(lat1);
+        //elem2.appendChild(document.createTextNode(lat));
+
+        //let longitude = document.createElement("b");
+        //longitude.appendChild(document.createTextNode('longitude: '));
+        //let elem3 = document.createElement("p");
+        //elem3.appendChild(longitude);
+        //elem3.appendChild(document.createTextNode(lng));
+
 
         var firstElem = document.getElementById("chatroom").firstChild;
         document.getElementById("chatroom").insertBefore(elem, firstElem);
@@ -46,9 +71,12 @@
         document.getElementById("header").innerHTML = '<h3>Welcome ' + userName + '</h3>';
     });
     // отправка сообщения на сервер
+
     document.getElementById("sendBtn").addEventListener("click", function (e) {
         let message = document.getElementById("message").value;
-        hubConnection.invoke("Send", userName, message);
+        let latitude = document.getElementById("latitude").value;
+        let longitude = document.getElementById("longitude").value;
+        hubConnection.invoke("Send", userName, message, latitude, longitude);
     });
 
     hubConnection.start();
